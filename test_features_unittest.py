@@ -9,6 +9,7 @@ class TestFeatures(unittest.TestCase):
         self.atm_balance = 10000
         self.attempts = 2
         self.correct_pin = 777
+        self.client_can_get_money = False
 
     def test_rise_money(self):
         self.assertTrue(self.my_features.rise_money(1000))
@@ -31,8 +32,12 @@ class TestFeatures(unittest.TestCase):
         self.assertEqual(self.atm_balance, self.my_features.rise_money(0))
 
     def test_get_money(self):
+        money = 500
+        self.assertTrue(money < self.atm_balance)
+        self.atm_balance_minus_money = self.atm_balance - money
+        self.assertTrue(self.atm_balance_minus_money, self.atm_balance - money)
         self.assertTrue(self.my_features.get_money(500))
-
+    
     def test_get_money_equal(self):
         my_money = 300
         self.my_features.get_money(my_money)
@@ -50,17 +55,16 @@ class TestFeatures(unittest.TestCase):
         self.my_features.get_money(money_sequentially)
         # self.atm_balance_one = self.atm_balance - money_one
         # self.atm_balance_two = self.atm_balance_one - money_two
-        self.assertEqual(self.my_features.get_money(money_sequentially), money_sequentially)
+        self.assertTrue(self.my_features.get_money(money_sequentially), money_sequentially)
 
     def test_get_money_more_balance(self):
         more_money = 1000000
-        self.assertTrue(self.my_features.get_money(more_money))
+        self.assertFalse(self.my_features.get_money(more_money), more_money)
 
     def test_get_money_raise_atm_balance(self):
-        money = 100000
-        # self.atm_balance_after_get = self.atm_balance - money
-        # self.my_features.get_money(money)
-        if money != self.atm_balance or money > self.atm_balance:
+        money = 10000000
+        self.assertTrue(money > self.atm_balance)
+        if self.my_features.get_money(money):
             self.assertRaises(AtmBalance)
 
     def test_check_balance_true(self):
@@ -69,7 +73,14 @@ class TestFeatures(unittest.TestCase):
         self.assertTrue(self.my_features.check_balance(money))
 
     def test_check_balance_false(self):
+        money_more = 10001
+        self.my_features.get_money(money_more)
 
+        self.assertTrue(self.my_features.check_balance(money_more))
+
+    # != self.atm_balance or self.my_features.get_money(money) > self.atm_balance:
+    # self.atm_balance_after_get = self.atm_balance - money
+    # self.my_features.get_money(money)
 
     # def test_if_incorrect_pin_raise_enter_pin(self):
     #     self.my_features.enter_pin(self.correct_pin)
